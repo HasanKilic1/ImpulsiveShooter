@@ -6,8 +6,7 @@ public class PlayerInput : MonoBehaviour
     public FrameInput FrameInput { get; private set; }
 
     PlayerControls inputActions;
-    private InputAction move;
-    private InputAction jump;
+    private InputAction move , jump , jetpack , grenade;   
 
     private void Awake()
     {
@@ -15,6 +14,8 @@ public class PlayerInput : MonoBehaviour
 
         move = inputActions.Player.Move;
         jump = inputActions.Player.Jump;
+        jetpack = inputActions.Player.JetPack;
+        grenade = inputActions.Player.Grenade;
     }
 
     private void OnEnable()
@@ -37,7 +38,9 @@ public class PlayerInput : MonoBehaviour
         return new FrameInput
         {
             Move = move.ReadValue<Vector2>(),
-            Jump = jump.WasPressedThisFrame()
+            Jump = jump.WasPressedThisFrame(),
+            JetPack = jetpack.WasPressedThisFrame(),
+            Grenade = grenade.WasPressedThisFrame()
         };
     }
 
@@ -47,4 +50,6 @@ public struct FrameInput
 {
     public Vector2 Move;
     public bool Jump;
+    public bool JetPack;
+    public bool Grenade;    
 }

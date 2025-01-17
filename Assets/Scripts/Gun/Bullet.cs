@@ -1,17 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    [SerializeField] private GameObject bulletVfx;
     [SerializeField] private float _moveSpeed = 10f;
     [SerializeField] private int _damageAmount = 1;
     [SerializeField] private float knockBackThrust = 20f;
+    [SerializeField] private TrailRenderer trailRenderer;
 
     private Gun gun;
     private Vector2 _fireDirection;
 
     private Rigidbody2D _rigidBody;
+
+    private void OnEnable()
+    {
+        trailRenderer?.Clear();
+    }
+
+    private void OnDisable()
+    {
+        trailRenderer?.Clear();
+    }
 
     private void Awake()
     {
@@ -28,21 +38,21 @@ public class Bullet : MonoBehaviour
         this.gun = gun;
         transform.position = bulletSpawnPos;
         _fireDirection = (mousePos - bulletSpawnPos).normalized;
+        ClearTrail();
     }
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        if(other.TryGetComponent(out Health health))
-        {
-            health.TakeDamage(_damageAmount);
-        }
-        
-        KnockBack knockBack = other.GetComponent<KnockBack>();
-        knockBack?.GetKnockedBack(PlayerController.Instance.transform.position, knockBackThrust);
+        Instantiate(bulletVfx , transform.position , transform.rotation);
 
-        Flash flash = other.GetComponent<Flash>();
-        flash?.StartFlash();
+        IHitable hitable = other.gameObject.GetComponent<IHitable>();
+        hitable?.TakeHit();
+
+        IDamageable damageable = other.gameObject.GetComponent<IDamageable>();
+        damageable?.TakeDamage(_damageAmount , knockBackThrust);
 
         gun.ReleaseBulletFromPool(this);
     }
+
+    public void ClearTrail() => trailRenderer.Clear();
 }
